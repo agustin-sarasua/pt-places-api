@@ -134,6 +134,8 @@ aws apigateway put-method-response --rest-api-id 22e4ux5fed \
 # Now Integrate with the Backend
 # NOTE: Create the backend Lambda
 ####################################################################
+# Create Rol for the lambda function
+./create_rol.sh
 
 # Create the lambda
 ./create_lambda.sh

@@ -6,7 +6,7 @@ aws lambda create-function \
   --region us-east-1 \
   --function-name places-api \
   --memory 128 \
-  --role arn:aws:iam::161262005667:role/PeopleTrackingLambda \
+  --role arn:aws:iam::161262005667:role/PlacesAPILambdaRole \
   --runtime go1.x \
   --zip-file fileb:///tmp/main.zip \
   --handler main
