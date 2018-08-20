@@ -23,3 +23,14 @@ aws iam create-role \
 #         "Arn": "arn:aws:iam::161262005667:role/PlacesAPILambdaRole"
 #     }
 # }
+
+# Attach managed policy AWSLambdaBasicExecutionRole to the Rol
+aws iam attach-role-policy \
+--policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole \
+--role-name PlacesAPILambdaRole
+
+# Embed inline policy to Role so it can update the databse
+aws iam put-role-policy \
+--role-name PlacesAPILambdaRole \
+--policy-name DynamoDBPolicy \
+--policy-document file://dynamodb-inline-policy.json
