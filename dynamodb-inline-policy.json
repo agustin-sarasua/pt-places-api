@@ -16,7 +16,7 @@
           "dynamodb:UpdateItem"
         ],
         "Effect": "Allow",
-        "Resource": "arn:aws:dynamodb:us-east-1:161262005667:table/Place"
+        "Resource": "arn:aws:dynamodb:us-east-1:161262005667:table/Places"
       }
     ]
   }
