@@ -29,6 +29,9 @@ aws iam attach-role-policy \
 --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole \
 --role-name PlacesAPILambdaRole
 
+# Create the dynamodb table
+./create_table.sh
+
 # Embed inline policy to Role so it can update the databse
 aws iam put-role-policy \
 --role-name PlacesAPILambdaRole \
