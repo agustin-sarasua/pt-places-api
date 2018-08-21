@@ -11,7 +11,6 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/awslabs/aws-lambda-go-api-proxy/gin"
 	"github.com/gin-gonic/gin"
-	uuid "github.com/satori/go.uuid"
 )
 
 var ginLambda *ginadapter.GinLambda
@@ -43,6 +42,9 @@ func createPlace(c *gin.Context) {
 
 	newPlace := Place{}
 	err := c.BindJSON(&newPlace)
+	if err != nil {
+		return
+	}
 
 	if newPlace.Name == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -51,14 +53,12 @@ func createPlace(c *gin.Context) {
 		return
 	}
 
-	uid, _ := uuid.NewV4()
-	newPlace.ID = uid.String()
 	newPlace.Sub = sub
-
+	err = putItem(&newPlace)
 	if err != nil {
-		return
+		fmt.Printf("Error saving item in db %v", err)
+		c.JSON(http.StatusInternalServerError, newPlace)
 	}
-
 	c.JSON(http.StatusAccepted, newPlace)
 }
 
@@ -68,8 +68,15 @@ func getPlace(c *gin.Context) {
 }
 
 func getPlaces(c *gin.Context) {
-	pets := make([]Place, 2)
-	c.JSON(200, pets)
+	apiGwContext, _ := ginLambda.GetAPIGatewayContext(c.Request)
+	sub := getClaimsSub(apiGwContext)
+	items, err := getItems(sub)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+	}
+	c.JSON(200, items)
 }
 
 // Handler is the main entry point for Lambda. Receives a proxy request and

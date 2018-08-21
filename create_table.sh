@@ -35,3 +35,17 @@ aws dynamodb create-table --cli-input-json file://create_palces_table.json --reg
 #         "CreationDateTime": 1534860109.297
 #     }
 # }
+
+# Example put item
+aws dynamodb put-item --table-name Places --item file://item.json --return-consumed-capacity TOTAL
+# {
+#     "ConsumedCapacity": {
+#         "CapacityUnits": 1.0,
+#         "TableName": "Places"
+#     }
+# }
+
+aws dynamodb query \
+    --table-name Places \
+    --key-condition-expression "Sub = :name" \
+    --expression-attribute-values  '{":name":{"S":"Sub1"}}'

@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"log"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -11,13 +14,46 @@ import (
 // use.
 var db = dynamodb.New(session.New(), aws.NewConfig().WithRegion("us-east-1"))
 
-func getEvent(id string) (*Event, error) {
+func getItems(sub string) ([]Place, error) {
+	// Prepare the input for the query.
+	input := &dynamodb.QueryInput{
+		TableName: aws.String("Places"),
+		KeyConditions: map[string]*dynamodb.Condition{
+			"Sub": {
+				ComparisonOperator: aws.String("EQ"),
+				AttributeValueList: []*dynamodb.AttributeValue{
+					{
+						S: aws.String(sub),
+					},
+				},
+			},
+		},
+	}
+	var resp1, err1 = db.Query(input)
+	if err1 != nil {
+		fmt.Println(err1)
+		return nil, err1
+	} else {
+		places := []Place{}
+		err1 = dynamodbattribute.UnmarshalListOfMaps(resp1.Items, &places)
+		if err1 != nil {
+			return nil, err1
+		}
+		log.Println(places)
+		return places, nil
+	}
+}
+
+func getItem(sub string, name string) (*Place, error) {
 	// Prepare the input for the query.
 	input := &dynamodb.GetItemInput{
-		TableName: aws.String("Event"),
+		TableName: aws.String("Places"),
 		Key: map[string]*dynamodb.AttributeValue{
-			"id": {
-				S: aws.String(id),
+			"Name": {
+				S: aws.String(name),
+			},
+			"Sub": {
+				S: aws.String(sub),
 			},
 		},
 	}
@@ -37,7 +73,7 @@ func getEvent(id string) (*Event, error) {
 	// to parse this straight into the fields of a struct. Note:
 	// UnmarshalListOfMaps also exists if you are working with multiple
 	// items.
-	bk := new(Event)
+	bk := new(Place)
 	err = dynamodbattribute.UnmarshalMap(result.Item, bk)
 	if err != nil {
 		return nil, err
@@ -47,17 +83,14 @@ func getEvent(id string) (*Event, error) {
 }
 
 // Add a record to DynamoDB.
-func putItem(e *Event) error {
+func putItem(e *Place) error {
 	input := &dynamodb.PutItemInput{
-		TableName: aws.String("Event"),
+		TableName: aws.String("Places"),
 		Item: map[string]*dynamodb.AttributeValue{
-			"id": {
-				S: aws.String(e.ID),
-			},
-			"Name": {
+			"name": {
 				S: aws.String(e.Name),
 			},
-			"Sub": {
+			"sub": {
 				S: aws.String(e.Sub),
 			},
 		},
