@@ -96,6 +96,20 @@ aws apigateway put-method --rest-api-id 22e4ux5fed \
 #     "authorizerId": "3tdsp6"
 # }
 
+# Enable POST (AUTH) for /places
+aws apigateway put-method --rest-api-id 22e4ux5fed \
+       --resource-id mnhrio \
+       --http-method POST \
+       --authorization-type COGNITO_USER_POOLS \
+       --authorizer-id 3tdsp6 \
+       --region us-east-1
+# {
+#     "apiKeyRequired": false,
+#     "httpMethod": "POST",
+#     "authorizationType": "COGNITO_USER_POOLS",
+#     "authorizerId": "3tdsp6"
+# }
+
 # Enable GET (AUTH) for /places/{placeId}
 aws apigateway put-method --rest-api-id 22e4ux5fed \
        --resource-id 9fq64m --http-method GET \
@@ -113,9 +127,17 @@ aws apigateway put-method --rest-api-id 22e4ux5fed \
 #     "authorizerId": "3tdsp6"
 # }
 
-# Enable 200 OK to /places
+# Enable 200 OK to GET /places
 aws apigateway put-method-response --rest-api-id 22e4ux5fed \
        --resource-id mnhrio --http-method GET \
+       --status-code 200  --region us-east-1
+# {
+#     "statusCode": "200"
+# }
+
+# Enable 200 OK to POST /places
+aws apigateway put-method-response --rest-api-id 22e4ux5fed \
+       --resource-id mnhrio --http-method POST \
        --status-code 200  --region us-east-1
 # {
 #     "statusCode": "200"
@@ -176,6 +198,24 @@ aws apigateway put-integration --rest-api-id 22e4ux5fed \
 #     "cacheKeyParameters": []
 # }
 
+# Integrate POST /places with Lambda function
+aws apigateway put-integration --rest-api-id 22e4ux5fed \
+        --resource-id mnhrio \
+        --http-method POST \
+        --type AWS_PROXY \
+        --integration-http-method POST \
+        --region us-east-1 \
+        --uri 'arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:161262005667:function:places-api/invocations'
+# {
+#     "passthroughBehavior": "WHEN_NO_MATCH",
+#     "timeoutInMillis": 29000,
+#     "uri": "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:161262005667:function:places-api/invocations",
+#     "httpMethod": "POST",
+#     "cacheNamespace": "mnhrio",
+#     "type": "AWS_PROXY",
+#     "cacheKeyParameters": []
+# }
+
 # Integrate GET /places/{placeId} with Lambda function
 aws apigateway put-integration --rest-api-id 22e4ux5fed \
         --resource-id 9fq64m \
@@ -199,9 +239,19 @@ aws apigateway put-integration --rest-api-id 22e4ux5fed \
 # Retrive previous integration
 aws apigateway get-integration --rest-api-id 22e4ux5fed --resource-id 9fq64m --http-method GET
 
-# Create Integration Response for /places
+# Create Integration Response for GET /places
 aws apigateway put-integration-response --rest-api-id 22e4ux5fed \
        --resource-id mnhrio --http-method GET \
+       --status-code 200 --selection-pattern ""  \
+       --region us-east-1
+# {
+#     "selectionPattern": "",
+#     "statusCode": "200"
+# }
+
+# Create Integration Response for POST /places
+aws apigateway put-integration-response --rest-api-id 22e4ux5fed \
+       --resource-id mnhrio --http-method POST \
        --status-code 200 --selection-pattern ""  \
        --region us-east-1
 # {

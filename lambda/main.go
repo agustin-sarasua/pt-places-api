@@ -43,7 +43,9 @@ func createPlace(c *gin.Context) {
 	newPlace := Place{}
 	err := c.BindJSON(&newPlace)
 	if err != nil {
-		return
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
 	}
 
 	if newPlace.Name == "" {
@@ -57,7 +59,9 @@ func createPlace(c *gin.Context) {
 	err = putItem(&newPlace)
 	if err != nil {
 		fmt.Printf("Error saving item in db %v", err)
-		c.JSON(http.StatusInternalServerError, newPlace)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
 	}
 	c.JSON(http.StatusAccepted, newPlace)
 }

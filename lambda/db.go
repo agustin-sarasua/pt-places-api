@@ -8,11 +8,12 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 )
 
 // Declare a new DynamoDB instance. Note that this is safe for concurrent
 // use.
-var db = dynamodb.New(session.New(), aws.NewConfig().WithRegion("us-east-1"))
+var db dynamodbiface.DynamoDBAPI = dynamodb.New(session.New(), aws.NewConfig().WithRegion("us-east-1"))
 
 func getItems(sub string) ([]Place, error) {
 	// Prepare the input for the query.
@@ -87,10 +88,10 @@ func putItem(e *Place) error {
 	input := &dynamodb.PutItemInput{
 		TableName: aws.String("Places"),
 		Item: map[string]*dynamodb.AttributeValue{
-			"name": {
+			"Name": {
 				S: aws.String(e.Name),
 			},
-			"sub": {
+			"Sub": {
 				S: aws.String(e.Sub),
 			},
 		},
